@@ -64,7 +64,7 @@ def _build_html(fig_html: dict[str, str], model_summary: str) -> str:
     """Assemble the presentation HTML."""
     today = date.today().isoformat()
     return dedent(
-        f"""
+        rf"""
         <!doctype html>
         <html lang="en">
         <head>
@@ -107,7 +107,7 @@ def _build_html(fig_html: dict[str, str], model_summary: str) -> str:
               C_{{it}} \sim \text{{Poisson}}(\lambda_{{it}} N_{{it}}), \quad
               \log \lambda_{{it}} = \alpha_i + \gamma_t + \beta_G G_{{it}} + \mathbf{{X}}_{{it}}^\top \boldsymbol{{\delta}}
               \]</p>
-              <p>Robust variance: \(\mathrm{{Var}}(\hat\beta) = (X^\top W X)^{-1} X^\top W \Sigma W X (X^\top W X)^{-1}\) with HC3 sandwich estimator.</p>
+              <p>Robust variance: \(\mathrm{{Var}}(\hat\beta) = (X^\top W X)^{{-1}} X^\top W \Sigma W X (X^\top W X)^{{-1}}\) with HC3 sandwich estimator.</p>
               <p>We also check dispersion-aware alternatives (NegBin2) and random effects:</p>
               <p>\[
                 \log \lambda_{{it}} = \alpha + u_i + v_t + \beta_G G_{{it}} + \epsilon_{{it}}, \quad u_i \sim \mathcal N(0, \sigma_u^2)

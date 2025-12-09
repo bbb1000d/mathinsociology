@@ -21,29 +21,40 @@ import numpy as np
 import pandas as pd
 import statsmodels.formula.api as smf
 
-HOMICIDE_URL = (
-    "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/"
-    "Homicide%20Rate%20-%20Our%20World%20in%20Data/Homicide%20Rate%20-%20Our%20World%20in%20Data.csv"
-)
-GINI_URL = (
-    "https://raw.githubusercontent.com/owid/owid-datasets/master/datasets/"
-    "Gini%20coefficient%20(World%20Bank%20estimate)%20-%20World%20Bank/Gini%20coefficient%20(World%20Bank%20estimate)%20-%20World%20Bank.csv"
-)
+HOMICIDE_URL = "https://ourworldindata.org/grapher/homicide-rate.csv"
+GINI_URL = "https://ourworldindata.org/grapher/gini-index.csv"
+
+# Bundled samples keep the workflow functional when internet access is blocked or
+# OWID endpoint names change. They mirror the column names of the live series.
+SAMPLE_DIR = Path(__file__).resolve().parent.parent / "data" / "raw"
+HOMICIDE_FALLBACK = SAMPLE_DIR / "owid_homicide_rate_sample.csv"
+GINI_FALLBACK = SAMPLE_DIR / "owid_gini_worldbank_sample.csv"
 
 
-def _cache_csv(url: str, path: Path) -> Path:
-    """Download a CSV if it is not already cached locally."""
-    if not path.exists():
-        path.parent.mkdir(parents=True, exist_ok=True)
+def _cache_csv(url: str, path: Path, fallback: Path) -> Path:
+    """Download a CSV if it is not already cached locally, else use fallback."""
+    if path.exists():
+        return path
+
+    path.parent.mkdir(parents=True, exist_ok=True)
+    try:
         df = pd.read_csv(url)
         df.to_csv(path, index=False)
+    except Exception as exc:  # pragma: no cover - defensive path
+        print(f"Could not download {url}: {exc}\nUsing bundled fallback at {fallback} instead.")
+        if not fallback.exists():
+            raise FileNotFoundError(
+                f"Fallback file {fallback} is missing. Please provide data manually."
+            ) from exc
+        fallback_df = pd.read_csv(fallback)
+        fallback_df.to_csv(path, index=False)
     return path
 
 
 def load_raw(cache_dir: Path) -> Tuple[pd.DataFrame, pd.DataFrame]:
     """Load homicide and inequality series, caching raw CSVs locally."""
-    homicide_path = _cache_csv(HOMICIDE_URL, cache_dir / "owid_homicide_rate.csv")
-    gini_path = _cache_csv(GINI_URL, cache_dir / "owid_gini.csv")
+    homicide_path = _cache_csv(HOMICIDE_URL, cache_dir / "owid_homicide_rate.csv", HOMICIDE_FALLBACK)
+    gini_path = _cache_csv(GINI_URL, cache_dir / "owid_gini.csv", GINI_FALLBACK)
 
     homicide = pd.read_csv(homicide_path)
     gini = pd.read_csv(gini_path)

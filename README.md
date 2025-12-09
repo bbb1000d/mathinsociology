@@ -5,16 +5,19 @@ structure, crime, and deviance using only official statistics and transparent st
 
 ## Quickstart: run a real-data demo
 
-1. Install dependencies (requires internet access):
+1. Install dependencies (requires internet access the first time):
    ```bash
    pip install -r requirements.txt
    ```
-2. Run the downloader/model script against publicly hosted datasets:
+   If you are offline or behind a restrictive proxy, skip this step and rely on the bundled
+   sample CSVs in `data/raw/` (the scripts will pick them up automatically if downloads fail).
+2. Run the downloader/model script against publicly hosted datasets (or the bundled fallbacks):
    ```bash
    python scripts/pull_and_model.py --head --summary --save-data data/owid_crime_panel.csv
    ```
    - This pulls homicide rates (IHME/GBD via Our World in Data) and World Bank Gini inequality series.
-   - It caches raw CSVs under `data/` and saves a merged country-year panel.
+   - It caches raw CSVs under `data/` (or writes the bundled fallbacks there) and saves a merged
+     country-year panel.
    - The model output tests whether inequality correlates with homicide rate changes while controlling for country and year.
 
 See `data/SOURCES.md` for the exact URLs used. The script aligns with the hypotheses and models in `RESEARCH_PLAN.md` so you can
