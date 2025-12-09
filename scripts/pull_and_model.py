@@ -94,7 +94,9 @@ def tidy_panel(raw: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         "Entity": "country",
         "Code": "iso_code",
         "Year": "year",
+        # OWID homicide headers vary across downloads; we coalesce below.
         "Homicide rate (IHME, GBD 2019)": "homicide_rate_per_100k",
+        "Homicide rate (IHME, GBD 2019) - Sex: Both - Age: Age-standardized": "homicide_rate_per_100k",
     }
     gini_cols = {
         "Entity": "country",
@@ -122,10 +124,15 @@ def tidy_panel(raw: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         "GDP per capita, PPP (Maddison Project Database 2020)": "gdp_per_capita_ppp",
     }
 
-    # Some CSV variants split the homicide column at the comma when not quoted.
-    # Coalesce those into a single column before renaming.
+    # Some CSV variants split the homicide column at the comma when not quoted or
+    # append age/sex qualifiers. Coalesce those into a single column before
+    # renaming so both the online and bundled offline samples work uniformly.
     if "Homicide rate (IHME, GBD 2019)" not in homicide.columns:
-        candidates = [c for c in homicide.columns if c.lower().startswith("homicide rate (ihme")]
+        candidates = [
+            c
+            for c in homicide.columns
+            if "homicide" in c.lower() and "rate" in c.lower()
+        ]
         if candidates:
             homicide["Homicide rate (IHME, GBD 2019)"] = homicide[candidates[0]]
 
