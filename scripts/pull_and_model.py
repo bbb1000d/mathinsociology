@@ -122,6 +122,13 @@ def tidy_panel(raw: Dict[str, pd.DataFrame]) -> pd.DataFrame:
         "GDP per capita, PPP (Maddison Project Database 2020)": "gdp_per_capita_ppp",
     }
 
+    # Some CSV variants split the homicide column at the comma when not quoted.
+    # Coalesce those into a single column before renaming.
+    if "Homicide rate (IHME, GBD 2019)" not in homicide.columns:
+        candidates = [c for c in homicide.columns if c.lower().startswith("homicide rate (ihme")]
+        if candidates:
+            homicide["Homicide rate (IHME, GBD 2019)"] = homicide[candidates[0]]
+
     homicide = homicide.rename(columns=homicide_cols)
     gini = gini.rename(columns=gini_cols)
     population = population.rename(columns=population_cols)

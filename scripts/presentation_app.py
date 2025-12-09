@@ -64,7 +64,7 @@ def _build_html(fig_html: dict[str, str], model_summary: str) -> str:
     """Assemble the presentation HTML."""
     today = date.today().isoformat()
     template = dedent(
-        """
+        r"""
         <!doctype html>
         <html lang="en">
         <head>
