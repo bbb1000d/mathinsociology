@@ -134,7 +134,11 @@ def tidy_panel(raw: Dict[str, pd.DataFrame]) -> pd.DataFrame:
             if "homicide" in c.lower() and "rate" in c.lower()
         ]
         if candidates:
-            homicide["Homicide rate (IHME, GBD 2019)"] = homicide[candidates[0]]
+            homicide = homicide.rename(columns={candidates[0]: "Homicide rate (IHME, GBD 2019)"})
+        else:  # pragma: no cover - defensive guard for malformed CSVs
+            raise KeyError(
+                "Could not find a homicide rate column. Inspect the CSV headers and update tidy_panel coalescing logic."
+            )
 
     homicide = homicide.rename(columns=homicide_cols)
     gini = gini.rename(columns=gini_cols)
